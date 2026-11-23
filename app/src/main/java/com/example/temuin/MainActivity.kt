@@ -89,7 +89,7 @@ import com.example.temuin.feature.profile.ui.viewmodel.ProfileViewModelFactory
 
 // REPORT
 import com.example.temuin.feature.report.data.model.Report
-import com.example.temuin.feature.report.data.repository.DummyReportRepository
+import com.example.temuin.feature.report.data.repository.SupabaseReportRepository
 import com.example.temuin.feature.report.ui.screens.ReportProgressScreen
 import com.example.temuin.feature.report.ui.viewmodel.ReportViewModel
 import com.example.temuin.feature.report.ui.viewmodel.ReportViewModelFactory
@@ -162,13 +162,15 @@ fun ReviewNavigation() {
     val favoriteViewModel: FavoriteViewModel = viewModel(factory = remember { FavoriteViewModelFactory(DummyFavoriteRepository()) })
 
     // VIEWMODEL REPORT
-    val reportViewModel: ReportViewModel = viewModel(factory = remember { ReportViewModelFactory(DummyReportRepository()) })
+    val reportViewModel: ReportViewModel = viewModel(factory = remember { ReportViewModelFactory(SupabaseReportRepository()) })
 
     val profileState by profileViewModel.uiState.collectAsState()
-    val activeUserName = profileState.profile?.fullName ?: defaultUserName
+    val activeUserName = currentUser?.name ?: profileState.profile?.fullName ?: defaultUserName
+    val activeUserPhone = currentUser?.phone?.takeIf { it.isNotBlank() } ?: profileState.profile?.phone ?: ""
     LaunchedEffect(currentUserId) {
         profileViewModel.load(currentUserId)
-        reportViewModel.load(currentUserId)
+        // Laporan dibaca dari Supabase: tunggu sampai user benar-benar login.
+        if (currentUser != null) reportViewModel.load(currentUserId)
         reviewViewModel.loadWrittenReviews(currentUserId)
     }
 
@@ -417,7 +419,7 @@ fun ReviewNavigation() {
                 reportViewModel = reportViewModel,
                 userId = currentUserId,
                 userName = activeUserName,
-                defaultContact = profileState.profile?.phone ?: "",
+                defaultContact = activeUserPhone,
                 onIncomingClaims = { report -> navController.navigate(Screen.ReportProgress(report.id)) },
                 onRate = { report ->
                     val recipientId = if (report.ownerId == currentUserId) targetUserId else report.ownerId

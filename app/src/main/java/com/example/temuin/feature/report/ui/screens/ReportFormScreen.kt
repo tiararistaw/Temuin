@@ -201,14 +201,28 @@ fun ReportFormScreen(
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(shape = CircleShape, color = TemuinLavender, modifier = Modifier.size(38.dp)) {
+                    Surface(
+                        shape = CircleShape,
+                        color = TemuinLavender,
+                        modifier = Modifier.size(38.dp)
+                    ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Outlined.VerifiedUser, null, tint = TemuinTeal, modifier = Modifier.size(20.dp))
+                            Icon(
+                                Icons.Outlined.VerifiedUser,
+                                null,
+                                tint = TemuinTeal,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
                     Spacer(Modifier.width(10.dp))
                     Column {
-                        Text("Bantu Komunitas Kampus", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = ReportDark)
+                        Text(
+                            "Bantu Komunitas Kampus",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = ReportDark
+                        )
                         Text(
                             "Laporanmu tersinkronisasi otomatis dengan sistem penelusuran barang kampus Temuin.",
                             fontSize = 12.sp, color = TemuinMuted
@@ -241,8 +255,16 @@ fun ReportFormScreen(
             // Foto barang
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    FieldLabel("Foto Barang", required = photoRequired, modifier = Modifier.weight(1f))
-                    Text("Maksimal $MAX_PHOTOS foto (PNG/JPG)", fontSize = 11.sp, color = TemuinMuted)
+                    FieldLabel(
+                        "Foto Barang",
+                        required = photoRequired,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        "Maksimal $MAX_PHOTOS foto (PNG/JPG)",
+                        fontSize = 11.sp,
+                        color = TemuinMuted
+                    )
                 }
 
                 Surface(
@@ -263,13 +285,22 @@ fun ReportFormScreen(
                             .padding(vertical = 20.dp, horizontal = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Surface(shape = CircleShape, color = TemuinLavender, modifier = Modifier.size(52.dp)) {
+                        Surface(
+                            shape = CircleShape,
+                            color = TemuinLavender,
+                            modifier = Modifier.size(52.dp)
+                        ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(Icons.Outlined.AddAPhoto, null, tint = TemuinTeal)
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Pilih Foto dari Galeri", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = ReportDark)
+                        Text(
+                            "Pilih Foto dari Galeri",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = ReportDark
+                        )
                         Text(
                             "Unggah foto barang yang jelas dari beberapa sudut agar mudah dikenali oleh pemilik.",
                             fontSize = 12.sp, color = TemuinMuted,
@@ -301,7 +332,12 @@ fun ReportFormScreen(
                                         .clickable { photos.remove(uri) }
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Icon(Icons.Default.Close, "Hapus foto", tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Icon(
+                                            Icons.Default.Close,
+                                            "Hapus foto",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(14.dp)
+                                        )
                                     }
                                 }
                             }
@@ -345,9 +381,19 @@ fun ReportFormScreen(
                         onClick = { showCampusDialog = true },
                         contentPadding = PaddingValues(horizontal = 4.dp)
                     ) {
-                        Icon(Icons.Outlined.NearMe, null, tint = TemuinTeal, modifier = Modifier.size(14.dp))
+                        Icon(
+                            Icons.Outlined.NearMe,
+                            null,
+                            tint = TemuinTeal,
+                            modifier = Modifier.size(14.dp)
+                        )
                         Spacer(Modifier.width(4.dp))
-                        Text("Gunakan Titik Kampus", color = TemuinTeal, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(
+                            "Gunakan Titik Kampus",
+                            color = TemuinTeal,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
                 FormTextField(
@@ -374,8 +420,13 @@ fun ReportFormScreen(
                             ) {
                                 Text(
                                     spot,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                    fontSize = 11.sp, color = ReportDark, fontWeight = FontWeight.Medium
+                                    modifier = Modifier.padding(
+                                        horizontal = 12.dp,
+                                        vertical = 6.dp
+                                    ),
+                                    fontSize = 11.sp,
+                                    color = ReportDark,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -387,7 +438,9 @@ fun ReportFormScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     FieldLabel("Tanggal", required = true)
-                    PickerField(Icons.Outlined.CalendarMonth, formatDate(date)) { showDatePicker = true }
+                    PickerField(Icons.Outlined.CalendarMonth, formatDate(date)) {
+                        showDatePicker = true
+                    }
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     FieldLabel("Waktu Perkiraan")
@@ -398,8 +451,16 @@ fun ReportFormScreen(
             // Deskripsi
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    FieldLabel("Deskripsi & Ciri Khusus", required = true, modifier = Modifier.weight(1f))
-                    Text("${description.length}/$MAX_DESCRIPTION", fontSize = 11.sp, color = TemuinMuted)
+                    FieldLabel(
+                        "Deskripsi & Ciri Khusus",
+                        required = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        "${description.length}/$MAX_DESCRIPTION",
+                        fontSize = 11.sp,
+                        color = TemuinMuted
+                    )
                 }
                 OutlinedTextField(
                     value = description,
@@ -424,14 +485,28 @@ fun ReportFormScreen(
             Surface(shape = RoundedCornerShape(18.dp), color = TemuinPaleBlue) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = CircleShape, color = TemuinLavender, modifier = Modifier.size(38.dp)) {
+                        Surface(
+                            shape = CircleShape,
+                            color = TemuinLavender,
+                            modifier = Modifier.size(38.dp)
+                        ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Outlined.Shield, null, tint = TemuinTeal, modifier = Modifier.size(20.dp))
+                                Icon(
+                                    Icons.Outlined.Shield,
+                                    null,
+                                    tint = TemuinTeal,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
                         Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("Samarkan Identitas (Anonim)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = ReportDark)
+                            Text(
+                                "Samarkan Identitas (Anonim)",
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                color = ReportDark
+                            )
                             Text(
                                 "Nama profil kamu tidak akan ditampilkan di papan feed publik.",
                                 fontSize = 12.sp, color = TemuinMuted
@@ -466,43 +541,62 @@ fun ReportFormScreen(
 
         // Bottom action
         Surface(color = Color.White, shadowElevation = 8.dp) {
-            Button(
-                onClick = { submit() },
-                enabled = !state.isSubmitting,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(52.dp),
-                shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.buttonColors(containerColor = ReportDarkTeal)
+                    .navigationBarsPadding()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (state.isSubmitting) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Icon(Icons.AutoMirrored.Filled.Send, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        if (isEdit) "Simpan Perubahan" else "Publikasikan Laporan",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-
-            if (isEdit && existing.status == ReportStatus.ACTIVE) {
-                OutlinedButton(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.dp, Color(0xFFB54747)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB54747))
+                Button(
+                    onClick = { submit() },
+                    enabled = !state.isSubmitting,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = ReportDarkTeal)
                 ) {
-                    Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB54747), modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Hapus Laporan", color = Color(0xFFB54747), fontWeight = FontWeight.SemiBold)
+                    if (state.isSubmitting) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Icon(Icons.AutoMirrored.Filled.Send, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            if (isEdit) "Simpan Perubahan" else "Publikasikan Laporan",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
+                if (isEdit && existing?.status == ReportStatus.ACTIVE) {
+                    OutlinedButton(
+                        onClick = { showDeleteDialog = true },
+                        enabled = !state.isSubmitting,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(50),
+                        border = BorderStroke(1.dp, Color(0xFFB54747)),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB54747))
+                    ) {
+                        Icon(
+                            Icons.Outlined.Delete,
+                            null,
+                            tint = Color(0xFFB54747),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Hapus Laporan",
+                            color = Color(0xFFB54747),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
         }

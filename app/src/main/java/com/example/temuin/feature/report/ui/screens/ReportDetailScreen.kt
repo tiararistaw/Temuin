@@ -217,50 +217,37 @@ fun ReportDetailScreen(
             }
         }
 
-        // Aksi bawah (bergantung peran)
+        // Aksi bawah (bergantung peran & status)
         val showClaim = !isOwner && report.type == ReportType.FOUND && report.status == ReportStatus.ACTIVE
         val showOwnerActions = isOwner
-        val showCompletedRating = report.status == ReportStatus.COMPLETED
 
-        if (showClaim || showOwnerActions || showCompletedRating) {
+        if (showClaim || showOwnerActions) {
             Surface(color = Color.White, shadowElevation = 8.dp) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .navigationBarsPadding()
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (showCompletedRating) {
-                        Button(
-                            onClick = { onRate(report) },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ReportDarkTeal)
-                        ) {
-                            Text("Beri Rating", fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-
                     if (showClaim) {
                         Button(
                             onClick = { onClaim(report) },
                             modifier = Modifier.fillMaxWidth().height(52.dp),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = ReportDarkTeal)
-                        ) {
-                            Text("Ajukan Klaim", fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-
-                    if (showOwnerActions && report.type == ReportType.FOUND) {
-                        OutlinedButton(
-                            onClick = { onIncomingClaims(report) },
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) { Text("Lihat Pengajuan Klaim", color = TemuinTeal) }
+                        ) { Text("Ajukan Klaim", fontWeight = FontWeight.SemiBold) }
                     }
 
                     if (showOwnerActions) {
+                        if (report.type == ReportType.FOUND) {
+                            OutlinedButton(
+                                onClick = { onIncomingClaims(report) },
+                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) { Text("Lihat Pengajuan Klaim", color = TemuinTeal) }
+                        }
+
                         Button(
                             onClick = { onEdit(report.id) },
                             modifier = Modifier.fillMaxWidth().height(52.dp),
