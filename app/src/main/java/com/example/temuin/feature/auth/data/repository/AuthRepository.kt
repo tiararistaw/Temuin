@@ -1,102 +1,105 @@
+
 package com.example.temuin.feature.auth.data.repository
 
+import com.example.temuin.SupabaseClient
 import com.example.temuin.feature.auth.data.model.User
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class AuthRepository {
-    private val users = mutableListOf(
-        User(
-            id = "user-01",
-            name = "Trisha Malina",
-            email = "trisha.malina@student.ub.ac.id",
-            password = "trisha123",
-            nim = "245150400111011",
-            studyProgram = "Teknik Informatika '22",
-            phone = "08111222333"
-        ),
-        User(
-            id = "user-02",
-            name = "Ailsa Nasywa",
-            email = "ailsa.nasywa@student.ub.ac.id",
-            password = "ailsa123",
-            nim = "245150400111022",
-            studyProgram = "Sistem Informasi '23",
-            phone = "08222333444"
-        ),
-        User(
-            id = "user-03",
-            name = "Dennisa Syafa",
-            email = "dennisa.syafa@student.ub.ac.id",
-            password = "dennisa123",
-            nim = "245150400111033",
-            studyProgram = "Ilmu Komputer '23",
-            phone = "08333444555"
-        ),
-        User(
-            id = "user-04",
-            name = "Tiara Aristawidya",
-            email = "tiara.arista@student.ub.ac.id",
-            password = "tiara123",
-            nim = "245150400111044",
-            studyProgram = "Teknologi Informasi '22",
-            phone = "08444555666"
-        ),
-        User(
-            id = "user-05",
-            name = "Sandra Triana",
-            email = "sandra.triana@student.ub.ac.id",
-            password = "sandra123",
-            nim = "245150400111055",
-            studyProgram = "Pendidikan Teknologi Informasi '24",
-            phone = "08555666777"
-        )
-    )
+
+    private val supabase = SupabaseClient.client
 
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    fun login(email: String, password: String): Result<User> {
-        val trimmedEmail = email.trim()
-        val user = users.firstOrNull { it.email.equals(trimmedEmail, ignoreCase = true) && it.password == password }
-        return if (user != null) {
-            _currentUser.value = user
-            Result.success(user)
-        } else {
-            Result.failure(Exception("Email atau password salah."))
-        }
-    }
-
-    fun register(
+    suspend fun register(
         name: String,
         email: String,
         password: String,
-        nim: String = "",
-        phone: String = ""
-    ): Result<User> {
-        val trimmedEmail = email.trim()
-        if (users.any { it.email.equals(trimmedEmail, ignoreCase = true) }) {
-            return Result.failure(Exception("Email sudah terdaftar."))
+        nim: String,
+        phone: String
+    ): Result<Unit> {
+        return runCatching {
+            val trimmedEmail = email.trim()
+
+            require(trimmedEmail.endsWith("@student.ub.ac.id", ignoreCase = true)) {
+                "Gunakan email mahasiswa UB."
+            }
+
+            require(name.isNotBlank()) {
+                "Nama lengkap wajib diisi."
+            }
+            require(nim.isNotBlank()) {
+                "NIM wajib diisi."
+            }
+            require(phone.isNotBlank()) {
+                "Nomor HP wajib diisi."
+            }
+
+            supabase.auth.signUpWith(
+                Email,
+                redirectUrl = "temuin://auth"
+            ) {
+                this.email = trimmedEmail
+                this.password = password
+
+                data = buildJsonObject {
+                    put("full_name", name.trim())
+                    put("nim", nim.trim())
+                    put("phone", phone.trim())
+                }
+            }
+
+            Unit
         }
-        val newUser = User(
-            id = "user-${System.currentTimeMillis()}",
-            name = name.trim(),
-            email = trimmedEmail,
-            password = password,
-            nim = nim.trim().ifBlank { "245150400111000" },
-            phone = phone.trim().ifBlank { "081234567890" }
-        )
-        users.add(newUser)
-        _currentUser.value = newUser
-        return Result.success(newUser)
     }
 
-    fun logout() {
+    suspend fun login(
+        email: String,
+        password: String
+    ): Result<User> {
+        return runCatching {
+            val trimmedEmail = email.trim()
+
+            supabase.auth.signInWith(Email) {
+                this.email = trimmedEmail
+                this.password = password
+            }
+
+            val authUser = supabase.auth.currentUserOrNull()
+                ?: error("Sesi login tidak ditemukan.")
+
+            val profile = supabase
+                .from("profiles")
+                .select {
+                    filter {
+                        eq("id", authUser.id)
+                    }
+                }
+                .decodeSingle<User>()
+
+            val user = profile.copy(
+                email = authUser.email ?: trimmedEmail
+            )
+
+            _currentUser.value = user
+            user
+        }
+    }
+
+    suspend fun logout() {
+        supabase.auth.signOut()
         _currentUser.value = null
     }
 
     fun getUserById(userId: String): User? {
-        return users.firstOrNull { it.id == userId }
+        return _currentUser.value?.takeIf { it.id == userId }
     }
 }

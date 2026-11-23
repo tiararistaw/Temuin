@@ -48,6 +48,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import io.github.jan.supabase.auth.handleDeeplinks
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
 
 // AUTH
 import com.example.temuin.feature.auth.data.repository.AuthRepository
@@ -117,12 +120,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //SupabaseClient.client.handleDeeplinks(intent)
+
         setContent {
-            MaterialTheme {
-                ReviewNavigation()
-            }
+            ReviewNavigation()
         }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,7 +149,7 @@ fun ReviewNavigation() {
     val currentUserId = currentUser?.id ?: "user-01"
     val defaultUserName = currentUser?.name ?: "Trisha Malina"
     val currentNim = currentUser?.nim ?: "245150400111011"
-    val currentStudy = currentUser?.studyProgram ?: "Sistem Informasi '23"
+    val currentStudy = "Sistem Informasi"
 
     // REPOSITORY & VIEWMODEL REVIEW
     val repository = remember { DummyReviewRepository() }
@@ -598,3 +600,5 @@ fun ReviewNavigation() {
         }
     }
 }
+}
+

@@ -1,15 +1,31 @@
+
 package com.example.temuin.feature.auth.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.temuin.feature.auth.data.model.User
 import com.example.temuin.feature.auth.data.repository.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class AuthViewModel(val repository: AuthRepository) : ViewModel() {
+class AuthViewModel(
+    val repository: AuthRepository
+) : ViewModel() {
+
     val currentUser: StateFlow<User?> = repository.currentUser
 
-    fun login(email: String, password: String): Result<User> {
-        return repository.login(email, password)
+    private val _loginResult = MutableStateFlow<Result<User>?>(null)
+    val loginResult: StateFlow<Result<User>?> = _loginResult.asStateFlow()
+
+    private val _registerResult = MutableStateFlow<Result<Unit>?>(null)
+    val registerResult: StateFlow<Result<Unit>?> = _registerResult.asStateFlow()
+
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _loginResult.value = repository.login(email, password)
+        }
     }
 
     fun register(
@@ -18,11 +34,25 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() {
         password: String,
         nim: String = "",
         phone: String = ""
-    ): Result<User> {
-        return repository.register(name, email, password, nim, phone)
+    ) {
+        viewModelScope.launch {
+            _registerResult.value = repository.register(
+                name, email, password, nim, phone
+            )
+        }
     }
 
     fun logout() {
-        repository.logout()
+        viewModelScope.launch {
+            repository.logout()
+        }
+    }
+
+    fun clearLoginResult() {
+        _loginResult.value = null
+    }
+
+    fun clearRegisterResult() {
+        _registerResult.value = null
     }
 }

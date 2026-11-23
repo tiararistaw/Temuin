@@ -1,3 +1,4 @@
+
 package com.example.temuin.feature.auth.ui.screens
 
 import androidx.compose.foundation.background
@@ -35,8 +36,28 @@ fun RegisterScreen(
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val registerResult by viewModel.registerResult.collectAsState()
+
+    LaunchedEffect(registerResult) {
+        val result = registerResult ?: return@LaunchedEffect
+
+        isLoading = false
+
+        result.onSuccess {
+            successMessage =
+                "Registrasi berhasil! Silakan masuk menggunakan akun kamu."
+            errorMessage = null
+        }.onFailure { error ->
+            errorMessage = error.message ?: "Gagal mendaftar."
+        }
+
+        viewModel.clearRegisterResult()
+    }
 
     Box(
         modifier = Modifier
@@ -57,7 +78,12 @@ fun RegisterScreen(
                 modifier = Modifier.size(72.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text("T", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "T",
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -69,6 +95,7 @@ fun RegisterScreen(
                 fontWeight = FontWeight.Bold,
                 color = TemuinDark
             )
+
             Text(
                 text = "Daftar untuk bergabung dengan komunitas Temuin Kampus UB.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -80,7 +107,9 @@ fun RegisterScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
                 elevation = CardDefaults.cardElevation(1.dp)
             ) {
                 Column(
@@ -89,9 +118,15 @@ fun RegisterScreen(
                 ) {
                     OutlinedTextField(
                         value = name,
-                        onValueChange = { name = it; errorMessage = null },
+                        onValueChange = {
+                            name = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("Nama Lengkap") },
-                        leadingIcon = { Icon(Icons.Outlined.Person, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Person, null, tint = TemuinTeal)
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -103,9 +138,15 @@ fun RegisterScreen(
 
                     OutlinedTextField(
                         value = nim,
-                        onValueChange = { nim = it; errorMessage = null },
+                        onValueChange = {
+                            nim = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("NIM Mahasiswa") },
-                        leadingIcon = { Icon(Icons.Outlined.Badge, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Badge, null, tint = TemuinTeal)
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -117,9 +158,15 @@ fun RegisterScreen(
 
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it; errorMessage = null },
+                        onValueChange = {
+                            email = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("Email Kampus (@student.ub.ac.id)") },
-                        leadingIcon = { Icon(Icons.Outlined.Mail, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Mail, null, tint = TemuinTeal)
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -131,9 +178,15 @@ fun RegisterScreen(
 
                     OutlinedTextField(
                         value = phone,
-                        onValueChange = { phone = it; errorMessage = null },
+                        onValueChange = {
+                            phone = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("Nomor HP / WhatsApp") },
-                        leadingIcon = { Icon(Icons.Outlined.Call, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Call, null, tint = TemuinTeal)
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -145,9 +198,15 @@ fun RegisterScreen(
 
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it; errorMessage = null },
+                        onValueChange = {
+                            password = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("Password (min. 6 karakter)") },
-                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Lock, null, tint = TemuinTeal)
+                        },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -160,9 +219,15 @@ fun RegisterScreen(
 
                     OutlinedTextField(
                         value = confirmPassword,
-                        onValueChange = { confirmPassword = it; errorMessage = null },
+                        onValueChange = {
+                            confirmPassword = it
+                            errorMessage = null
+                            successMessage = null
+                        },
                         label = { Text("Konfirmasi Password") },
-                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Lock, null, tint = TemuinTeal)
+                        },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -181,47 +246,92 @@ fun RegisterScreen(
                         )
                     }
 
+                    if (successMessage != null) {
+                        Text(
+                            text = successMessage!!,
+                            color = Color(0xFF2E7D32),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
                     Spacer(Modifier.height(4.dp))
 
                     Button(
                         onClick = {
-                            if (name.isBlank() || email.isBlank() || password.isBlank()) {
-                                errorMessage = "Semua field utama harus diisi."
+                            if (
+                                name.isBlank() ||
+                                nim.isBlank() ||
+                                email.isBlank() ||
+                                phone.isBlank() ||
+                                password.isBlank() ||
+                                confirmPassword.isBlank()
+                            ) {
+                                errorMessage = "Semua field wajib diisi."
                                 return@Button
                             }
-                            if (!email.contains("@")) {
-                                errorMessage = "Format email tidak valid."
+
+                            val trimmedEmail = email.trim()
+
+                            if (
+                                !trimmedEmail.contains("@") ||
+                                !trimmedEmail.endsWith(
+                                    "@student.ub.ac.id",
+                                    ignoreCase = true
+                                )
+                            ) {
+                                errorMessage =
+                                    "Gunakan email mahasiswa UB (@student.ub.ac.id)."
                                 return@Button
                             }
+
                             if (password.length < 6) {
-                                errorMessage = "Password minimal 6 karakter."
+                                errorMessage =
+                                    "Password minimal 6 karakter."
                                 return@Button
                             }
+
                             if (password != confirmPassword) {
-                                errorMessage = "Konfirmasi password tidak cocok."
+                                errorMessage =
+                                    "Konfirmasi password tidak cocok."
                                 return@Button
                             }
+
+                            errorMessage = null
+                            successMessage = null
                             isLoading = true
-                            val result = viewModel.register(
+
+                            viewModel.clearRegisterResult()
+
+                            viewModel.register(
                                 name = name,
-                                email = email,
+                                email = trimmedEmail,
                                 password = password,
                                 nim = nim,
                                 phone = phone
                             )
-                            isLoading = false
-                            if (result.isSuccess) {
-                                onRegisterSuccess()
-                            } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: "Gagal mendaftar."
-                            }
                         },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = TemuinTeal),
-                        enabled = !isLoading
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = TemuinTeal
+                        ),
+                        enabled = !isLoading && successMessage == null
                     ) {
-                        Text("Daftar Akun", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(22.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                "Daftar Akun",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
                     }
                 }
             }
@@ -229,9 +339,19 @@ fun RegisterScreen(
             Spacer(Modifier.height(20.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Sudah punya akun?", color = TemuinMuted, fontSize = 13.sp)
+                Text(
+                    "Sudah punya akun?",
+                    color = TemuinMuted,
+                    fontSize = 13.sp
+                )
+
                 TextButton(onClick = onNavigateLogin) {
-                    Text("Masuk", color = TemuinTeal, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(
+                        "Masuk",
+                        color = TemuinTeal,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
                 }
             }
         }

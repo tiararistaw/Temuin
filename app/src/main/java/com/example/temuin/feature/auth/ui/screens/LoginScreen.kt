@@ -1,3 +1,4 @@
+
 package com.example.temuin.feature.auth.ui.screens
 
 import androidx.compose.foundation.background
@@ -26,10 +27,26 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateRegister: () -> Unit
 ) {
-    var email by remember { mutableStateOf("trisha.malina@student.ub.ac.id") }
-    var password by remember { mutableStateOf("trisha123") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val loginResult by viewModel.loginResult.collectAsState()
+
+    LaunchedEffect(loginResult) {
+        if (loginResult != null) {
+            isLoading = false
+
+            loginResult?.onSuccess {
+                viewModel.clearLoginResult()
+                onLoginSuccess()
+            }?.onFailure { error ->
+                errorMessage = error.message ?: "Gagal masuk."
+                viewModel.clearLoginResult()
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -50,7 +67,12 @@ fun LoginScreen(
                 modifier = Modifier.size(72.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text("T", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "T",
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -62,6 +84,7 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
                 color = TemuinDark
             )
+
             Text(
                 text = "Masuk untuk melanjutkan bantu warga kampus.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -73,7 +96,9 @@ fun LoginScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
                 elevation = CardDefaults.cardElevation(1.dp)
             ) {
                 Column(
@@ -82,9 +107,18 @@ fun LoginScreen(
                 ) {
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it; errorMessage = null },
+                        onValueChange = {
+                            email = it
+                            errorMessage = null
+                        },
                         label = { Text("Email Kampus") },
-                        leadingIcon = { Icon(Icons.Outlined.Mail, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Mail,
+                                null,
+                                tint = TemuinTeal
+                            )
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -96,9 +130,18 @@ fun LoginScreen(
 
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it; errorMessage = null },
+                        onValueChange = {
+                            password = it
+                            errorMessage = null
+                        },
                         label = { Text("Password") },
-                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = TemuinTeal) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Lock,
+                                null,
+                                tint = TemuinTeal
+                            )
+                        },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -122,24 +165,49 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (email.isBlank() || password.isBlank()) {
-                                errorMessage = "Email dan password tidak boleh kosong."
+                                errorMessage =
+                                    "Email dan password tidak boleh kosong."
                                 return@Button
                             }
-                            isLoading = true
-                            val result = viewModel.login(email, password)
-                            isLoading = false
-                            if (result.isSuccess) {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: "Gagal masuk."
+
+                            if (!email.trim().endsWith(
+                                    "@student.ub.ac.id",
+                                    ignoreCase = true
+                                )
+                            ) {
+                                errorMessage =
+                                    "Gunakan email mahasiswa UB."
+                                return@Button
                             }
+
+                            errorMessage = null
+                            isLoading = true
+
+                            viewModel.clearLoginResult()
+                            viewModel.login(email, password)
                         },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = TemuinTeal),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = TemuinTeal
+                        ),
                         enabled = !isLoading
                     ) {
-                        Text("Masuk", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(22.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                "Masuk",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
                     }
                 }
             }
@@ -147,9 +215,19 @@ fun LoginScreen(
             Spacer(Modifier.height(20.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Belum punya akun?", color = TemuinMuted, fontSize = 13.sp)
+                Text(
+                    "Belum punya akun?",
+                    color = TemuinMuted,
+                    fontSize = 13.sp
+                )
+
                 TextButton(onClick = onNavigateRegister) {
-                    Text("Daftar sekarang", color = TemuinTeal, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(
+                        "Daftar sekarang",
+                        color = TemuinTeal,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
                 }
             }
         }
