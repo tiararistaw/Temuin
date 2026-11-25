@@ -1,5 +1,6 @@
 package com.example.temuin.feature.favorite.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,10 @@ data class FavoriteUiState(
             FavoriteFilter.FOUND -> items.filter { it.type == ReportType.FOUND }
             FavoriteFilter.LOST -> items.filter { it.type == ReportType.LOST }
         }
+
+    // BARU
+    val favoriteIds: Set<String>
+        get() = items.map { it.reportId }.toSet()
 
     fun count(f: FavoriteFilter): Int = when (f) {
         FavoriteFilter.ALL -> items.size
@@ -71,6 +76,18 @@ class FavoriteViewModel(
             runCatching { repository.addFavorite(userId, reportId) }
                 .onSuccess { load(userId) }
                 .onFailure { e -> _uiState.update { it.copy(error = e.message) } }
+        }
+    }
+
+    // BARU
+
+    fun toggle(userId: String, reportId: String) {
+        Log.d("FAV", "toggle dipanggil: user=$userId report=$reportId")
+
+        if (reportId in _uiState.value.favoriteIds) {
+            remove(userId, reportId)
+        } else {
+            add(userId, reportId)
         }
     }
 
