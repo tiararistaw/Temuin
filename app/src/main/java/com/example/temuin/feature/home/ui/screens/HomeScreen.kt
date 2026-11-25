@@ -87,9 +87,11 @@ private val HomeFilters = listOf(
 /**
  * Beranda - daftar laporan barang hilang & ditemukan.
  *
- * @param onReportClick  buka halaman detail laporan
- * @param onEditClick    buka form edit (hanya muncul di laporan milik sendiri)
- * @param onCreateClick  buka form lapor barang (tombol "Buat Laporan Cepat" dan FAB)
+ * @param onReportClick     buka halaman detail laporan
+ * @param onEditClick       buka form edit (hanya muncul di laporan milik sendiri)
+ * @param onCreateClick     buka form lapor barang (tombol "Buat Laporan Cepat" dan FAB)
+ * @param favoriteIds       id laporan yang sudah difavoritkan (dari FavoriteViewModel)
+ * @param onToggleFavorite  dipanggil saat ikon hati ditekan; kalau null, hati hanya state lokal
  */
 @Composable
 fun HomeScreen(
@@ -101,7 +103,9 @@ fun HomeScreen(
     onEditClick: (String) -> Unit,
     onCreateClick: () -> Unit,
     onProgressClick: (String) -> Unit = onReportClick,
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    favoriteIds: Set<String> = emptySet(),
+    onToggleFavorite: ((String) -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -192,9 +196,16 @@ fun HomeScreen(
                             onEditClick = { onEditClick(report.id) }
                         )
                     } else {
+                        val toggleThis: (() -> Unit)? =
+                            if (onToggleFavorite != null) {
+                                { onToggleFavorite(report.id) }
+                            } else null
+
                         OtherReportCard(
                             report = report,
-                            onDetailClick = { onReportClick(report.id) }
+                            onDetailClick = { onReportClick(report.id) },
+                            isFavorite = report.id in favoriteIds,
+                            onToggleFavorite = toggleThis
                         )
                     }
                 }
@@ -597,16 +608,19 @@ private fun OwnReportCard(
 }
 
 // ----------------------------------------------------------------------------
-// Kartu laporan orang lain (avatar pelapor + bookmark)
+// Kartu laporan orang lain (avatar pelapor + hati favorit)
 // ----------------------------------------------------------------------------
 
 @Composable
 private fun OtherReportCard(
     report: Report,
-    onDetailClick: () -> Unit
+    onDetailClick: () -> Unit,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
-    // Bookmark baru berupa tampilan lokal; sambungkan ke fitur Favorit nanti.
-    var saved by rememberSaveable(report.id) { mutableStateOf(false) }
+    // Kalau belum disambungkan ke Favorit, tetap pakai state lokal seperti semula.
+    var savedLocal by rememberSaveable(report.id) { mutableStateOf(false) }
+    val saved = if (onToggleFavorite != null) isFavorite else savedLocal
     val ownerName = if (report.isAnonymous) "Anonim" else report.ownerName
 
     Card(
@@ -621,7 +635,7 @@ private fun OtherReportCard(
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // header: pelapor + jenis + bookmark
+            // header: pelapor + jenis + hati
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Avatar(
                     name = ownerName,
@@ -650,7 +664,12 @@ private fun OtherReportCard(
 
                 TypeChip(report.type)
 
-                IconButton(onClick = { saved = !saved }) {
+                IconButton(
+                    onClick = {
+                        if (onToggleFavorite != null) onToggleFavorite()
+                        else savedLocal = !savedLocal
+                    }
+                ) {
                     Icon(
                         imageVector = if (saved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Simpan",

@@ -48,7 +48,8 @@ import com.example.temuin.feature.review.ui.components.TemuinBackground
 import com.example.temuin.feature.review.ui.components.TemuinBorder
 import com.example.temuin.feature.review.ui.components.TemuinMuted
 import com.example.temuin.feature.review.ui.components.TemuinTeal
-
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 /**
  * Halaman 2 - Detail Laporan.
  * Tombol edit hanya muncul untuk laporan milik pengguna yang sedang login.
@@ -62,7 +63,9 @@ fun ReportDetailScreen(
     onEdit: (String) -> Unit,
     onClaim: (Report) -> Unit = {},
     onRate: (Report) -> Unit = {},
-    onIncomingClaims: (Report) -> Unit = {}
+    onIncomingClaims: (Report) -> Unit = {},
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
