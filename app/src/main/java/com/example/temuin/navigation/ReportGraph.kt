@@ -10,34 +10,36 @@ import com.example.temuin.feature.report.ui.screens.ReportDetailScreen
 import com.example.temuin.feature.report.ui.screens.ReportFormScreen
 import com.example.temuin.feature.report.ui.screens.ReportSuccessScreen
 import com.example.temuin.feature.report.ui.viewmodel.ReportViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.temuin.feature.favorite.ui.viewmodel.FavoriteViewModel
 
 fun NavGraphBuilder.reportGraph(
     navController: NavController,
     reportViewModel: ReportViewModel,
+    favoriteViewModel: FavoriteViewModel,      // BARU
     userId: String,
     userName: String,
     defaultContact: String,
     onRate: (Report) -> Unit = {},
     onIncomingClaims: (Report) -> Unit = {}
 ) {
-    composable<Screen.ReportAdd> {
-        ReportFormScreen(
+    composable<Screen.ReportDetail> { entry ->
+        val route: Screen.ReportDetail = entry.toRoute()
+        val favState by favoriteViewModel.uiState.collectAsState()   // BARU
+        ReportDetailScreen(
             viewModel = reportViewModel,
             userId = userId,
-            userName = userName,
-            defaultContact = defaultContact,
-            reportId = null,
-            onBack = {
-                navController.navigate(Screen.Home) {
-                    popUpTo(Screen.Home) { inclusive = false }
-                    launchSingleTop = true
-                }
+            reportId = route.reportId,
+            onBack = { navController.popBackStack() },
+            onEdit = { reportId -> navController.navigate(Screen.ReportEdit(reportId)) },
+            onClaim = { report ->
+                navController.navigate(Screen.ClaimForm(report.itemName))
             },
-            onPublished = { newId ->
-                navController.navigate(Screen.ReportSuccess(newId)) {
-                    popUpTo<Screen.ReportAdd> { inclusive = true }
-                }
-            }
+            onRate = onRate,
+            onIncomingClaims = onIncomingClaims,
+            isFavorite = route.reportId in favState.favoriteIds,                        // BARU
+            onToggleFavorite = { favoriteViewModel.toggle(userId, route.reportId) }     // BARU
         )
     }
 

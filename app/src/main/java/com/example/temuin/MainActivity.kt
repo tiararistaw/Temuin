@@ -76,9 +76,9 @@ import com.example.temuin.feature.claim.ui.viewmodel.ClaimViewModelFactory
 
 // FAVORITE
 import com.example.temuin.feature.favorite.data.repository.DummyFavoriteRepository
+import com.example.temuin.feature.favorite.data.repository.SupabaseFavoriteRepository
 import com.example.temuin.feature.favorite.ui.viewmodel.FavoriteViewModel
 import com.example.temuin.feature.favorite.ui.viewmodel.FavoriteViewModelFactory
-
 // HOME
 import com.example.temuin.feature.home.ui.screens.HomeScreen
 
@@ -159,8 +159,7 @@ fun ReviewNavigation() {
     val profileViewModel: ProfileViewModel = viewModel(factory = remember { ProfileViewModelFactory(DummyProfileRepository()) })
 
     // VIEWMODEL FAVORITE
-    val favoriteViewModel: FavoriteViewModel = viewModel(factory = remember { FavoriteViewModelFactory(DummyFavoriteRepository()) })
-
+    val favoriteViewModel: FavoriteViewModel = viewModel(factory = remember { FavoriteViewModelFactory(SupabaseFavoriteRepository()) })
     // VIEWMODEL REPORT
     val reportViewModel: ReportViewModel = viewModel(factory = remember { ReportViewModelFactory(SupabaseReportRepository()) })
 
@@ -171,6 +170,14 @@ fun ReviewNavigation() {
         profileViewModel.load(currentUserId)
         // Laporan dibaca dari Supabase: tunggu sampai user benar-benar login.
         if (currentUser != null) reportViewModel.load(currentUserId)
+        reviewViewModel.loadWrittenReviews(currentUserId)
+    }
+
+    LaunchedEffect(currentUserId) {
+        profileViewModel.load(currentUserId)
+        // Laporan dibaca dari Supabase: tunggu sampai user benar-benar login.
+        if (currentUser != null) reportViewModel.load(currentUserId)
+        if (currentUser != null) favoriteViewModel.load(currentUserId)   // BARU
         reviewViewModel.loadWrittenReviews(currentUserId)
     }
 
@@ -417,6 +424,7 @@ fun ReviewNavigation() {
             reportGraph(
                 navController = navController,
                 reportViewModel = reportViewModel,
+                favoriteViewModel = favoriteViewModel,
                 userId = currentUserId,
                 userName = activeUserName,
                 defaultContact = activeUserPhone,
@@ -499,6 +507,7 @@ fun ReviewNavigation() {
             }
 
             composable<Screen.Home> {
+                val favState by favoriteViewModel.uiState.collectAsState()      // BARU
                 HomeScreen(
                     viewModel = reportViewModel,
                     userId = currentUserId,
@@ -514,7 +523,9 @@ fun ReviewNavigation() {
                         showReportChoice = true
                     },
                     onProgressClick = { reportId -> navController.navigate(Screen.ReportProgress(reportId)) },
-                    onProfileClick = { navController.navigate(Screen.Profile) }
+                    onProfileClick = { navController.navigate(Screen.Profile) },
+                    favoriteIds = favState.favoriteIds,                                   // BARU
+                    onToggleFavorite = { reportId -> favoriteViewModel.toggle(currentUserId, reportId) }  // BARU
                 )
             }
 
