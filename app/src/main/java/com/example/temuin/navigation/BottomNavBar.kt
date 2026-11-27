@@ -59,23 +59,30 @@ private fun RowScope.NavSlot(
     navController: NavController
 ) {
     val targetRoute = targetScreen::class.qualifiedName
-    val selected = currentRoute == targetRoute || (targetRoute != null && currentRoute?.startsWith(targetRoute) == true)
+    val selected =
+        currentRoute == targetRoute || (targetRoute != null && currentRoute?.startsWith(targetRoute) == true)
     Column(
         Modifier.weight(1f).fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        IconButton(onClick = {
-            navController.navigate(targetScreen) {
-                popUpTo(Screen.Home) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
+        IconButton(
+            onClick = {
+                navController.navigate(targetScreen) {
+                    popUpTo<Screen.Home> {
+                        inclusive = false
+                        saveState = false
+                    }
+                    launchSingleTop = true
+                    restoreState = false
+                }
             }
-        }) { Icon(icon, contentDescription = label, tint = if (selected) TemuinTeal else TemuinMuted) }
-        Text(
-            label,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (selected) TemuinTeal else TemuinMuted
-        )
+        ) {
+            Icon(
+                icon,
+                contentDescription = label,
+                tint = if (selected) TemuinTeal else TemuinMuted
+            )
+        }
     }
 }

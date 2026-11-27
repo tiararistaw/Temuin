@@ -115,6 +115,9 @@ import com.example.temuin.navigation.TemuinBottomBar
 import com.example.temuin.navigation.profileFavoriteGraph
 import com.example.temuin.navigation.reportGraph
 
+// CLAIM
+import com.example.temuin.feature.claim.data.repository.SupabaseClaimRepository
+import com.example.temuin.feature.claim.data.repository.SupabaseFoundItemRepository
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,12 +194,33 @@ fun ReviewNavigation() {
     )
 
     // REPOSITORY & VIEWMODEL CLAIM
-    val claimRepository = remember { ClaimRepository() }
-    val claimViewModel: ClaimViewModel = viewModel(factory = remember(claimRepository) { ClaimViewModelFactory(claimRepository) })
-    LaunchedEffect(currentUserId) {
-        claimViewModel.loadClaims(currentUserId)
-    }
 
+    val claimRepository = remember { ClaimRepository() }
+    val supabaseClaimRepository = remember { SupabaseClaimRepository() }
+    val supabaseFoundItemRepository = remember { SupabaseFoundItemRepository() }
+
+    val claimViewModel: ClaimViewModel = viewModel(
+        factory = remember(
+            claimRepository,
+            supabaseClaimRepository,
+            supabaseFoundItemRepository
+        ) {
+            ClaimViewModelFactory(
+                repository = claimRepository,
+                supabaseRepository = supabaseClaimRepository,
+                foundItemRepository = supabaseFoundItemRepository
+            )
+        }
+    )
+
+
+    LaunchedEffect(currentUser) {
+        claimViewModel.loadFoundItems()
+
+        if (currentUser != null) {
+            claimViewModel.loadClaims()
+        }
+    }
     var showReportChoice by remember { mutableStateOf(false) }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
